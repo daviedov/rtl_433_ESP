@@ -353,7 +353,8 @@ void rtlSetup() {
     // end of fragment
 
 #else
-    memcpy(&cfg->devices[0], &lacrosse_tx141x, sizeof(r_device));
+    memcpy(&cfg->devices[0], &lacrosse_breezepro, sizeof(r_device));
+    memcpy(&cfg->devices[1], &lacrosse_r1, sizeof(r_device));
 #endif
 
 #ifdef RTL_FLEX
@@ -437,7 +438,7 @@ void rtlSetup() {
 #ifdef MEMORY_DEBUG
     logprintfLn(LOG_DEBUG, "Pre xQueueCreate heap %d", ESP.getFreeHeap());
 #endif
-    rtl_433_Queue = xQueueCreate(5, sizeof(pulse_data_t*));
+    rtl_433_Queue = xQueueCreate(10, sizeof(pulse_data_t*));
 
 #ifdef MEMORY_DEBUG
     logprintfLn(LOG_DEBUG, "Pre xTaskCreatePinnedToCore heap %d",
@@ -597,6 +598,7 @@ void processSignal(pulse_data_t* rtl_pulses) {
   // rtl_433_Queue");
   if (xQueueSend(rtl_433_Queue, &rtl_pulses, 0) != pdTRUE) {
     logprintfLn(LOG_ERR, "ERROR: rtl_433_Queue full, discarding signal");
+    esp_restart();
     free(rtl_pulses);
   } else {
     // logprintfLn(LOG_DEBUG, "processSignal() signal placed on rtl_433_Queue");

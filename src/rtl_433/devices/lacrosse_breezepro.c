@@ -91,7 +91,7 @@ static int lacrosse_breezepro_decode(r_device *decoder, bitbuffer_t *bitbuffer)
     int raw_temp, humidity, raw_speed, direction;
     float temp_c, speed_kmh;
 
-    if (bitbuffer->bits_per_row[0] < 264) {
+    if (bitbuffer->bits_per_row[0] < 256) {
         decoder_logf(decoder, 1, __func__, "Wrong packet length: %d", bitbuffer->bits_per_row[0]);
         return DECODE_ABORT_LENGTH;
     }
@@ -117,6 +117,7 @@ static int lacrosse_breezepro_decode(r_device *decoder, bitbuffer_t *bitbuffer)
 
     id        = (b[0] << 16) | (b[1] << 8) | b[2];
     flags     = (b[3] & 0xf1); // masks off seq bits
+    int batt_low  = (b[3] & 0x80) >> 7;
     seq       = (b[3] & 0x0e) >> 1;
     raw_temp  = b[4] << 4 | ((b[5] & 0xf0) >> 4);
     humidity  = ((b[5] & 0x0f) << 8) | b[6];
@@ -138,6 +139,7 @@ static int lacrosse_breezepro_decode(r_device *decoder, bitbuffer_t *bitbuffer)
     data_t *data = data_make(
             "model",            "",                 DATA_STRING, "LaCrosse-BreezePro",
             "id",               "Sensor ID",        DATA_FORMAT, "%06x", DATA_INT, id,
+            "battery_ok",       "Battery level",    DATA_INT,    !batt_low,
             "seq",              "Sequence",         DATA_FORMAT, "%01x", DATA_INT, seq,
             "flags",            "unknown",          DATA_INT,     flags,
             "temperature_C",    "Temperature",      DATA_FORMAT, "%.1f C", DATA_DOUBLE, temp_c,
