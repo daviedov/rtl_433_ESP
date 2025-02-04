@@ -206,8 +206,8 @@
       } else {                                                            \
         logprintfLn(LOG_ERR, STR_MODULE " " FUNCTION " failed, code: %d", \
                     STATEVAR);                                            \
-        ESP.restart(1000);                                                      \
-	resetFunc();							  \
+        while (true)                                                      \
+          ;                                                               \
       }                                                                   \
     }
 #else
@@ -216,9 +216,9 @@
       if ((STATEVAR) != RADIOLIB_ERR_NONE) {                              \
         logprintfLn(LOG_ERR, STR_MODULE " " FUNCTION " failed, code: %d", \
                     STATEVAR);                                            \
-        delay(1000);                                                      \
-	      ESP.restart();							                                       \      
-     }                                                                   \
+        while (true)                                                      \
+          ;                                                               \
+      }                                                                   \
     }
 #endif
 
